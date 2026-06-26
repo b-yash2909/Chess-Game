@@ -99,7 +99,7 @@ public class ChessFrame extends JFrame {
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        String modeText = (mode == GameMode.HUMAN_VS_HUMAN) ? "Local 2-Player Match" : "vs Computer Engine";
+        String modeText = (mode.getType() == GameMode.Type.HUMAN_VS_HUMAN) ? "Local 2-Player Match" : "vs Computer Engine";
         JLabel modeLabel = new JLabel(modeText);
         modeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         modeLabel.setForeground(new Color(130, 145, 160));
@@ -121,7 +121,7 @@ public class ChessFrame extends JFrame {
         statusContainer.setBackground(new Color(36, 42, 52));
         statusContainer.setBorder(new EmptyBorder(8, 12, 8, 12));
 
-        String initialStatus = (mode == GameMode.HUMAN_VS_HUMAN) ? "White's turn" : "Your turn — White";
+        String initialStatus = (mode.getType() == GameMode.Type.HUMAN_VS_HUMAN) ? "White's turn" : "Your turn — White";
         statusLabel = new JLabel(initialStatus, SwingConstants.CENTER);
         statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         statusLabel.setForeground(new Color(255, 255, 255));
@@ -302,7 +302,7 @@ public class ChessFrame extends JFrame {
         stopGameTimer();
         SoundManager.playGameOver();
         String winner = (colorLost == PieceColor.WHITE) ? "Black" : "White";
-        if (gameMode == GameMode.HUMAN_VS_COMPUTER) {
+        if (gameMode.getType() == GameMode.Type.HUMAN_VS_COMPUTER) {
             winner = (colorLost == PieceColor.WHITE) ? "Computer" : "Player";
         }
         JOptionPane.showMessageDialog(this, "Time is up! " + winner + " wins on time!", "Game Over",

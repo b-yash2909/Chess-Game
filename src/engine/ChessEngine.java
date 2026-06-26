@@ -13,6 +13,7 @@ import model.Bishop;
 import model.Rook;
 import model.Queen;
 import model.King;
+import model.AIDifficulty;
 
 import java.util.List;
 import java.util.Random;
@@ -101,21 +102,34 @@ public class ChessEngine {
 
     /**
      * Finds the best move using Minimax with Alpha-Beta pruning.
+     * Defaults to MEDIUM difficulty.
      *
      * @param state the current GameState
      * @return the optimal move calculated
      */
     public Move getBestMove(GameState state) {
+        return getBestMove(state, AIDifficulty.MEDIUM);
+    }
+
+    /**
+     * Finds the best move using Minimax with Alpha-Beta pruning, with a specific difficulty search depth and evaluation.
+     *
+     * @param state the current GameState
+     * @param difficulty the selected AI difficulty level
+     * @return the optimal move calculated
+     */
+    public Move getBestMove(GameState state, AIDifficulty difficulty) {
         List<Move> legalMoves = state.generateAllLegalMoves(state.getCurrentTurn());
         if (legalMoves.isEmpty()) return null;
 
         Move bestMove = null;
         int bestValue = Integer.MIN_VALUE;
+        int depth = difficulty.getSearchDepth();
 
         for (Move move : legalMoves) {
             GameState nextState = state.copy();
             nextState.applyMove(move);
-            int boardValue = minimax(nextState, DEPTH - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+            int boardValue = minimax(nextState, depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false, difficulty);
 
             if (boardValue > bestValue) {
                 bestValue = boardValue;
@@ -128,9 +142,9 @@ public class ChessEngine {
     /**
      * Minimax algorithm with alpha-beta pruning.
      */
-    private int minimax(GameState state, int depth, int alpha, int beta, boolean isMaximizingOptions) {
+    private int minimax(GameState state, int depth, int alpha, int beta, boolean isMaximizingOptions, AIDifficulty difficulty) {
         if (depth == 0 || state.getStatus() == GameStatus.CHECKMATE || state.getStatus() == GameStatus.STALEMATE) {
-            return evaluate(state);
+            return evaluateWithDifficulty(state, difficulty);
         }
 
         List<Move> moves = state.generateAllLegalMoves(state.getCurrentTurn());
@@ -140,7 +154,7 @@ public class ChessEngine {
             for (Move move : moves) {
                 GameState nextState = state.copy();
                 nextState.applyMove(move);
-                int eval = minimax(nextState, depth - 1, alpha, beta, false);
+                int eval = minimax(nextState, depth - 1, alpha, beta, false, difficulty);
                 maxEval = Math.max(maxEval, eval);
                 alpha = Math.max(alpha, eval);
                 if (beta <= alpha) break;
@@ -151,13 +165,122 @@ public class ChessEngine {
             for (Move move : moves) {
                 GameState nextState = state.copy();
                 nextState.applyMove(move);
-                int eval = minimax(nextState, depth - 1, alpha, beta, true);
+                int eval = minimax(nextState, depth - 1, alpha, beta, true, difficulty);
                 minEval = Math.min(minEval, eval);
                 beta = Math.min(beta, eval);
                 if (beta <= alpha) break;
             }
             return minEval;
         }
+    }
+
+    /**
+     * Evaluates the game state based on difficulty level settings.
+     *
+     * @param state the current GameState
+     * @param difficulty the selected difficulty level
+     * @return the evaluation score
+     */
+    private int evaluateWithDifficulty(GameState state, AIDifficulty difficulty) {
+        if (state.getStatus() == GameStatus.CHECKMATE || state.getStatus() == GameStatus.STALEMATE || state.getStatus() == GameStatus.DRAW) {
+            return evaluate(state);
+        }
+
+        if (difficulty == AIDifficulty.EASY) {
+            // Very basic evaluation — just material, no positional bonuses
+            return baseMaterialEval(state);
+        }
+
+        int baseEval = evaluate(state); // call existing evaluate()
+
+        if (difficulty == AIDifficulty.HARD) {
+            // Enhanced positional bonuses: +10% to position scores
+            return baseEval + enhancedPositionalBonus(state);
+        } else if (difficulty == AIDifficulty.EXPERT) {
+            // Maximum positional bonuses: +20% to position scores
+            return baseEval + strongPositionalBonus(state);
+        }
+        // MEDIUM uses standard evaluate() with no changes
+        return baseEval;
+    }
+
+    /**
+     * Counts chess material only, ignoring any positional bonuses.
+     */
+    private int baseMaterialEval(GameState state) {
+        int score = 0;
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = state.getBoard().getPiece(new Square(row, col));
+                if (piece != null) {
+                    int value = getMaterialValue(piece);
+                    if (piece.getColor() == PieceColor.BLACK) {
+                        score += value;
+                    } else {
+                        score -= value;
+                    }
+                }
+            }
+        }
+        // Add random jitter consistent with standard evaluate
+        int jitter = random.nextInt(11) - 5;
+        return score + jitter;
+    }
+
+    /**
+     * Adds 10% bonus to positional play.
+     */
+    private int enhancedPositionalBonus(GameState state) {
+        int bonus = 0;
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = state.getBoard().getPiece(new Square(row, col));
+                if (piece != null) {
+                    int pstBonus = getPieceSquareBonus(piece, row, col);
+                    if (piece.getColor() == PieceColor.BLACK) {
+                        bonus += pstBonus;
+                    } else {
+                        bonus -= pstBonus;
+                    }
+                }
+            }
+        }
+        return bonus / 10; // 10% of position scores
+    }
+
+    /**
+     * Adds 20% bonus to positional play.
+     */
+    private int strongPositionalBonus(GameState state) {
+        int bonus = 0;
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Piece piece = state.getBoard().getPiece(new Square(row, col));
+                if (piece != null) {
+                    int pstBonus = getPieceSquareBonus(piece, row, col);
+                    if (piece.getColor() == PieceColor.BLACK) {
+                        bonus += pstBonus;
+                    } else {
+                        bonus -= pstBonus;
+                    }
+                }
+            }
+        }
+        return bonus / 5; // 20% of position scores
+    }
+
+    /**
+     * Gets the base material value of a piece.
+     */
+    private int getMaterialValue(Piece piece) {
+        return getPieceValue(piece);
+    }
+
+    /**
+     * Gets the piece square table bonus for a piece.
+     */
+    private int getPieceSquareBonus(Piece piece, int row, int col) {
+        return getPSTValue(piece, row, col);
     }
 
     /**

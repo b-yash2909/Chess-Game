@@ -1,6 +1,7 @@
 package ui;
 
 import model.GameMode;
+import model.AIDifficulty;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -70,7 +71,15 @@ public class LaunchScreen extends JFrame {
                         "<font size='3' color='#D1D5DB'>Challenge the chess engine</font></center></html>",
                 new Color(46, 117, 89));
         btnHvC.setPreferredSize(new Dimension(240, 130));
-        btnHvC.addActionListener(e -> openGame(GameMode.HUMAN_VS_COMPUTER));
+        btnHvC.addActionListener(e -> {
+            DifficultySelectionDialog dialog = new DifficultySelectionDialog(LaunchScreen.this);
+            dialog.setVisible(true);
+            AIDifficulty selectedDifficulty = dialog.getSelectedDifficulty();
+            if (selectedDifficulty != null) {
+                GameMode mode = new GameMode(GameMode.Type.HUMAN_VS_COMPUTER, selectedDifficulty);
+                openGame(mode);
+            }
+        });
 
         // Styled Button 2: Player vs Player
         StyledButton btnHvH = new StyledButton(
@@ -78,7 +87,7 @@ public class LaunchScreen extends JFrame {
                         "<font size='3' color='#D1D5DB'>Play 1v1 with a friend</font></center></html>",
                 new Color(41, 98, 255));
         btnHvH.setPreferredSize(new Dimension(240, 130));
-        btnHvH.addActionListener(e -> openGame(GameMode.HUMAN_VS_HUMAN));
+        btnHvH.addActionListener(e -> openGame(new GameMode(GameMode.Type.HUMAN_VS_HUMAN)));
 
         buttonPanel.add(btnHvC);
         buttonPanel.add(btnHvH);

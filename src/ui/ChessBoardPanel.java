@@ -82,7 +82,7 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
         this.hintMove = null;
         this.hintThinking = false;
         repaint();
-        frame.setStatus(gameMode == GameMode.HUMAN_VS_HUMAN ? "White's turn" : "Your turn — White");
+        frame.setStatus(gameMode.getType() == GameMode.Type.HUMAN_VS_HUMAN ? "White's turn" : "Your turn — White");
         frame.updateMoveLog();
     }
 
@@ -95,7 +95,7 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
         }
 
         // In vs AI mode, we pop twice to revert both the AI's move and player's move
-        if (gameMode == GameMode.HUMAN_VS_COMPUTER) {
+        if (gameMode.getType() == GameMode.Type.HUMAN_VS_COMPUTER) {
             if (history.size() >= 2) {
                 gameState = history.remove(history.size() - 1); // Discard AI's state
                 gameState = history.remove(history.size() - 1); // Restore player's previous state
@@ -136,7 +136,7 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
             @Override
             protected Move doInBackground() throws Exception {
                 ChessEngine engine = new ChessEngine();
-                return engine.getBestMove(gameState);
+                return engine.getBestMove(gameState, gameMode.getDifficulty());
             }
 
             @Override
@@ -314,7 +314,7 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         if (gameOver || aiThinking || hintThinking
-                || (gameMode == GameMode.HUMAN_VS_COMPUTER && gameState.getCurrentTurn() != PieceColor.WHITE)) {
+                || (gameMode.getType() == GameMode.Type.HUMAN_VS_COMPUTER && gameState.getCurrentTurn() != PieceColor.WHITE)) {
             return;
         }
 
@@ -395,7 +395,7 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
                 checkGameOver();
                 frame.updateMoveLog();
 
-                if (!gameOver && gameMode == GameMode.HUMAN_VS_COMPUTER) {
+                if (!gameOver && gameMode.getType() == GameMode.Type.HUMAN_VS_COMPUTER) {
                     triggerAIMove();
                 }
             } else {
@@ -442,7 +442,7 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
         if (status == GameStatus.CHECKMATE) {
             gameOver = true;
             String winner;
-            if (gameMode == GameMode.HUMAN_VS_COMPUTER) {
+            if (gameMode.getType() == GameMode.Type.HUMAN_VS_COMPUTER) {
                 winner = (gameState.getCurrentTurn() == PieceColor.WHITE) ? "Computer (Black)" : "Player (White)";
             } else {
                 winner = (gameState.getCurrentTurn() == PieceColor.WHITE) ? "Black" : "White";
@@ -458,13 +458,13 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
             repaint();
             JOptionPane.showMessageDialog(frame, "Draw! Fifty-move rule or insufficient material.", "Game Over", JOptionPane.INFORMATION_MESSAGE);
         } else if (status == GameStatus.CHECK) {
-            if (gameMode == GameMode.HUMAN_VS_HUMAN) {
+            if (gameMode.getType() == GameMode.Type.HUMAN_VS_HUMAN) {
                 frame.setStatus("Check! — " + turnLabel() + "'s turn");
             } else {
                 frame.setStatus("Check! — " + (gameState.getCurrentTurn() == PieceColor.WHITE ? "Your turn — White" : "Computer is thinking..."));
             }
         } else if (status == GameStatus.ONGOING) {
-            if (gameMode == GameMode.HUMAN_VS_HUMAN) {
+            if (gameMode.getType() == GameMode.Type.HUMAN_VS_HUMAN) {
                 frame.setStatus(turnLabel() + "'s turn");
             } else {
                 frame.setStatus(gameState.getCurrentTurn() == PieceColor.WHITE ? "Your turn — White" : "Computer is thinking...");
@@ -481,8 +481,19 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
             protected Move doInBackground() throws Exception {
                 // Short sleep for realism
                 Thread.sleep(350);
+                
+                // Add a delay for Easy difficulty (makes the AI feel less instant)
+                if (gameMode.getDifficulty() == AIDifficulty.EASY) {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
+                }
+
                 ChessEngine engine = new ChessEngine();
-                return engine.getBestMove(gameState);
+                AIDifficulty difficulty = gameMode.getDifficulty();
+                return engine.getBestMove(gameState, difficulty);
             }
 
             @Override
