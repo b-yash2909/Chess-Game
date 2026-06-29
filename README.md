@@ -137,7 +137,7 @@ src/
     GameState.java               Coordinates game flow, move application
     PieceColor.java              Enum: WHITE, BLACK
     GameStatus.java              Enum: ONGOING, CHECK, CHECKMATE, STALEMATE, DRAW
-    GameMode.java                Enum: HUMAN\_VS\_COMPUTER, HUMAN\_VS\_HUMAN
+    GameMode.java                Enum: HUMAN\\\_VS\\\_COMPUTER, HUMAN\\\_VS\\\_HUMAN
 
   interfaces/                    Interface definitions
     Movable.java                 Contract: isValidMove(), getLegalMoves()
@@ -201,7 +201,7 @@ This layered design means the entire UI layer was replaced (console to Swing) wi
 
 The project evolved in two major phases:
 
-**Phase 1 - Console Implementation (Weeks 1-4)**
+**Phase 1 - Console Implementation** 
 
 * Designed piece class hierarchy with abstract base class and concrete subclasses
 * Implemented all chess rules and move validation logic
@@ -210,7 +210,7 @@ The project evolved in two major phases:
 * Implemented Minimax AI with Alpha-Beta pruning
 * Tested AI performance and evaluation function
 
-**Phase 2 - Swing GUI Conversion (Weeks 5-8)**
+**Phase 2 - Swing GUI Conversion**
 
 * Designed Swing application architecture (JFrame, JPanel, custom painting)
 * Implemented click-to-move interface with visual feedback
@@ -259,7 +259,7 @@ If you find this project useful or have suggestions, feel free to:
 * Create issues — for bugs or feature requests
 * Submit pull requests — improvements are always welcome
 
-You can also reach me at:- 
+You can also reach me at:-
 
 * \*\*LinkedIn\*\*: \[Yash Bhardwaj](https://www.linkedin.com/in/yash-bhardwaj-5b9040320/)
 * \*\*Email\*\*: \[yashbhardwaj290906@gmail.com](mailto:yashbhardwaj290906@gmail.com)
