@@ -211,4 +211,13 @@ public class GameState {
     public GameState copy() {
         return new GameState(board, currentTurn, moveHistory, status);
     }
+
+    /**
+     * Sets the current player turn color.
+     *
+     * @param currentTurn the new player turn color
+     */
+    public void setCurrentTurn(PieceColor currentTurn) {
+        this.currentTurn = currentTurn;
+    }
 }

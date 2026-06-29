@@ -55,6 +55,26 @@ public class GameMode {
         return difficulty;
     }
 
+    private boolean hintsEnabled = false;
+
+    /**
+     * Checks whether hints are enabled for the game session.
+     *
+     * @return true if hints are enabled, false otherwise
+     */
+    public boolean isHintsEnabled() {
+        return hintsEnabled;
+    }
+
+    /**
+     * Sets whether hints are enabled for the game session.
+     *
+     * @param hintsEnabled true to enable hints, false to disable
+     */
+    public void setHintsEnabled(boolean hintsEnabled) {
+        this.hintsEnabled = hintsEnabled;
+    }
+
     /**
      * Sets the AI difficulty.
      *

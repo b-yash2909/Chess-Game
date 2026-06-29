@@ -136,7 +136,8 @@ public class ChessBoardPanel extends JPanel implements MouseListener {
             @Override
             protected Move doInBackground() throws Exception {
                 ChessEngine engine = new ChessEngine();
-                return engine.getBestMove(gameState, gameMode.getDifficulty());
+                PieceColor turn = gameState.getCurrentTurn();
+                return engine.getBestMove(gameState, gameMode.getDifficulty(), turn);
             }
 
             @Override

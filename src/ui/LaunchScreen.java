@@ -89,8 +89,20 @@ public class LaunchScreen extends JFrame {
         btnHvH.setPreferredSize(new Dimension(240, 130));
         btnHvH.addActionListener(e -> openGame(new GameMode(GameMode.Type.HUMAN_VS_HUMAN)));
 
+        // Styled Button 3: Learn to Play
+        StyledButton btnLearn = new StyledButton(
+                "<html><center><font size='5'>🎓 Learn to Play</font><br>" +
+                        "<font size='3' color='#D1D5DB'>For complete beginners</font></center></html>",
+                new Color(150, 110, 180));
+        btnLearn.setPreferredSize(new Dimension(240, 130));
+        btnLearn.addActionListener(e -> {
+            new TutorialFrame();
+            this.dispose();
+        });
+
         buttonPanel.add(btnHvC);
         buttonPanel.add(btnHvH);
+        buttonPanel.add(btnLearn);
         centerPanel.add(buttonPanel);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
@@ -106,7 +118,7 @@ public class LaunchScreen extends JFrame {
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         // Set dimensions & centering
-        setMinimumSize(new Dimension(620, 480));
+        setMinimumSize(new Dimension(860, 480));
         pack();
         setLocationRelativeTo(null);
         setVisible(true);

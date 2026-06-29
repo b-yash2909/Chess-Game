@@ -168,4 +168,16 @@ public class Board {
 
     public int getFullMoveNumber() { return fullMoveNumber; }
     public void setFullMoveNumber(int number) { this.fullMoveNumber = number; }
+
+    /**
+     * Removes all pieces from the board, leaving every square empty.
+     * Used by the tutorial system to set up custom practice positions.
+     */
+    public void clearAllPieces() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                setPiece(new Square(row, col), null);
+            }
+        }
+    }
 }

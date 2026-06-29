@@ -219,7 +219,7 @@ public class ChessFrame extends JFrame {
 
         StyledButton btnHint = new StyledButton("AI Hint", new Color(40, 120, 180));
         btnHint.addActionListener(e -> chessBoardPanel.triggerHint());
-
+        
         StyledButton btnNew = new StyledButton("Reset", new Color(75, 85, 95));
         btnNew.addActionListener(e -> {
             stopGameTimer();
@@ -231,7 +231,11 @@ public class ChessFrame extends JFrame {
         btnResign.addActionListener(e -> handleResign());
 
         southPanel.add(btnUndo);
-        southPanel.add(btnHint);
+        if (mode.isHintsEnabled()) {
+            southPanel.add(btnHint);
+        } else {
+            southPanel.add(new JLabel(""));
+        }
         southPanel.add(btnNew);
         southPanel.add(btnResign);
 

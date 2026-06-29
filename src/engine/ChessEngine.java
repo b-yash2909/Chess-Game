@@ -119,21 +119,47 @@ public class ChessEngine {
      * @return the optimal move calculated
      */
     public Move getBestMove(GameState state, AIDifficulty difficulty) {
-        List<Move> legalMoves = state.generateAllLegalMoves(state.getCurrentTurn());
+        return getBestMove(state, difficulty, state.getCurrentTurn());
+    }
+
+    /**
+     * Finds the best move using Minimax with Alpha-Beta pruning, with a specific difficulty and color.
+     *
+     * @param state the current GameState
+     * @param difficulty the selected AI difficulty level
+     * @param forColor the color to find the best move for
+     * @return the optimal move calculated
+     */
+    public Move getBestMove(GameState state, AIDifficulty difficulty, PieceColor forColor) {
+        List<Move> legalMoves = state.generateAllLegalMoves(forColor);
         if (legalMoves.isEmpty()) return null;
 
         Move bestMove = null;
-        int bestValue = Integer.MIN_VALUE;
         int depth = difficulty.getSearchDepth();
 
-        for (Move move : legalMoves) {
-            GameState nextState = state.copy();
-            nextState.applyMove(move);
-            int boardValue = minimax(nextState, depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false, difficulty);
+        if (forColor == PieceColor.BLACK) {
+            int bestValue = Integer.MIN_VALUE;
+            for (Move move : legalMoves) {
+                GameState nextState = state.copy();
+                nextState.applyMove(move);
+                int boardValue = minimax(nextState, depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, false, difficulty);
 
-            if (boardValue > bestValue) {
-                bestValue = boardValue;
-                bestMove = move;
+                if (boardValue > bestValue) {
+                    bestValue = boardValue;
+                    bestMove = move;
+                }
+            }
+        } else {
+            int bestValue = Integer.MAX_VALUE;
+            for (Move move : legalMoves) {
+                GameState nextState = state.copy();
+                nextState.applyMove(move);
+                int boardValue = minimax(nextState, depth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE, true, difficulty);
+
+                if (boardValue < bestValue) {
+                    bestValue = boardValue;
+                    bestMove = move;
+                }
             }
         }
         return bestMove;
